@@ -49,6 +49,15 @@ Base image choice rationale:
 - Builder image `nixos/nix` was chosen for reproducibility and consistency with the root flake-based development workflow.
 - Runtime image `debian:bookworm-slim` was chosen to minimize final image size while keeping a standard, stable Linux userland.
 
+## Networking
+
+This project uses a user-defined Docker bridge network (`app_net`) in `docker-compose.yml`.
+
+- Both `api` and `redis` join `app_net`, so they communicate directly over the internal container network.
+- Docker Compose provides DNS resolution by service name on that network, so `redis` resolves to the Redis container.
+- The API connects to Redis with `REDIS_URL=redis://redis:6379` using Redis's internal container port.
+- Only the API port is published to the host (`3000:3000`). Redis is intentionally internal-only and not exposed outside Docker.
+
 ## Development Setup
 
 This repository uses a root-level Nix flake for a reproducible Rust development shell.
@@ -73,11 +82,3 @@ The API lives in `api/` and exposes three endpoints:
 - `GET /counter` returns the current counter value.
 - `POST /counter/increment` increments the counter and returns the new value.
 
-## Networking
-
-This project uses a user-defined Docker bridge network (`app_net`) in `docker-compose.yml`.
-
-- Both `api` and `redis` join `app_net`, so they communicate directly over the internal container network.
-- Docker Compose provides DNS resolution by service name on that network, so `redis` resolves to the Redis container.
-- The API connects to Redis with `REDIS_URL=redis://redis:6379` using Redis's internal container port.
-- Only the API port is published to the host (`3000:3000`). Redis is intentionally internal-only and not exposed outside Docker.
