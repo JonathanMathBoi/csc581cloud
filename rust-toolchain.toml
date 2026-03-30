@@ -2,3 +2,4 @@
 channel = "stable"
 profile = "default"
 components = ["rust-analyzer", "clippy", "rust-src", "rustfmt"]
+targets = ["x86_64-unknown-linux-musl"]

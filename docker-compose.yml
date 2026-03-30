@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    networks:
+      - app_net
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      REDIS_URL: redis://redis:6379
+      BIND_ADDR: 0.0.0.0:3000
+      RUST_LOG: info
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge

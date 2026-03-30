@@ -7,7 +7,7 @@ COPY api ./api
 
 RUN nix --extra-experimental-features 'nix-command flakes' \
     develop --accept-flake-config --command \
-    cargo build --release --manifest-path api/Cargo.toml
+    cargo build --release --target x86_64-unknown-linux-musl --manifest-path api/Cargo.toml
 
 FROM debian:bookworm-slim AS runtime
 
@@ -17,7 +17,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY --from=builder /workspace/api/target/release/service-status-api /usr/local/bin/service-status-api
+COPY --from=builder /workspace/api/target/x86_64-unknown-linux-musl/release/service-status-api /usr/local/bin/service-status-api
 
 EXPOSE 3000
 
