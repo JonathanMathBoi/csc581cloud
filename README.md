@@ -23,7 +23,7 @@ flowchart LR
 The project will use the following base images:
 
 - **Rust API Service**
-  The API will be built using the official Rust Docker image (`rust`).
+  The API will use a hybrid multi-stage build with `nixos/nix:2.29.0` for the builder stage and `debian:bookworm-slim` for the runtime stage.
 
 - **Redis Datastore**
   The Redis service will use the official Redis image (`redis`).
@@ -81,4 +81,3 @@ The API lives in `api/` and exposes three endpoints:
 - `GET /health` returns service health.
 - `GET /counter` returns the current counter value.
 - `POST /counter/increment` increments the counter and returns the new value.
-
