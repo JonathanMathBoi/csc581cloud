@@ -9,6 +9,22 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: ./api/src
+        - action: rebuild
+          path: ./api/Cargo.toml
+        - action: rebuild
+          path: ./api/Cargo.lock
+        - action: rebuild
+          path: ./api/Dockerfile
+        - action: rebuild
+          path: ./flake.nix
+        - action: rebuild
+          path: ./flake.lock
+        - action: rebuild
+          path: ./rust-toolchain.toml
     restart: unless-stopped
     depends_on:
       - redis
