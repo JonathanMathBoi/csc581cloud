@@ -41,3 +41,14 @@ pub async fn increment_counter_value(app_state: &AppState) -> AppResult<i64> {
 
     conn.incr("counter", 1).await.map_err(internal_error)
 }
+
+pub async fn reset_counter(app_state: &AppState) -> AppResult<i64> {
+    let mut conn = app_state
+        .redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .map_err(internal_error)?;
+
+    let (): () = conn.set("counter", 0_i64).await.map_err(internal_error)?;
+    Ok(0)
+}

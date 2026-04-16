@@ -7,7 +7,7 @@ use axum::{
 
 use crate::{
     core::{AppResult, AppState},
-    counter::{increment_counter_value, read_counter},
+    counter::{increment_counter_value, read_counter, reset_counter},
 };
 
 pub fn router() -> Router<AppState> {
@@ -15,6 +15,7 @@ pub fn router() -> Router<AppState> {
         .route("/", get(index))
         .route("/counter", get(counter_fragment))
         .route("/counter/increment", post(increment_counter_fragment))
+        .route("/counter/reset", post(reset_counter_fragment))
 }
 
 async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
@@ -41,6 +42,8 @@ async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
         --subtext1: #b8c0e0;
         --green: #a6da95;
         --green-press: #8ccf75;
+        --red: #ed8796;
+        --red-press: #e06c7d;
       }}
 
       * {{
@@ -107,6 +110,14 @@ async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
         flex: 1;
       }}
 
+      .reset-button {{
+        background: var(--red);
+      }}
+
+      .reset-button:active {{
+        background: var(--red-press);
+      }}
+
       .refresh-button {{
         width: 3rem;
         display: inline-flex;
@@ -140,6 +151,7 @@ async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
             <polyline points="21 3 21 9 15 9"></polyline>
           </svg>
         </button>
+        <button class="reset-button" hx-post="/counter/reset" hx-target="#counter" hx-swap="innerHTML" hx-confirm="Reset counter to 0?">Reset</button>
       </div>
     </main>
   </body>
@@ -155,6 +167,11 @@ async fn counter_fragment(State(app_state): State<AppState>) -> AppResult<Html<S
 
 async fn increment_counter_fragment(State(app_state): State<AppState>) -> AppResult<Html<String>> {
     let counter = increment_counter_value(&app_state).await?;
+    Ok(Html(render_counter(counter)))
+}
+
+async fn reset_counter_fragment(State(app_state): State<AppState>) -> AppResult<Html<String>> {
+    let counter = reset_counter(&app_state).await?;
     Ok(Html(render_counter(counter)))
 }
 

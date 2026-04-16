@@ -7,7 +7,7 @@ use serde::Serialize;
 
 use crate::{
     core::{AppResult, AppState},
-    counter::{increment_counter_value, read_counter},
+    counter::{increment_counter_value, read_counter, reset_counter},
 };
 
 #[derive(Serialize)]
@@ -25,6 +25,7 @@ pub fn router() -> Router<AppState> {
         .route("/health", get(health))
         .route("/counter", get(get_counter))
         .route("/counter/increment", post(increment_counter))
+        .route("/counter/reset", post(reset_counter_handler))
 }
 
 async fn health() -> Json<HealthResponse> {
@@ -39,6 +40,14 @@ async fn get_counter(State(app_state): State<AppState>) -> AppResult<Json<Counte
 
 async fn increment_counter(State(app_state): State<AppState>) -> AppResult<Json<CounterResponse>> {
     let counter = increment_counter_value(&app_state).await?;
+
+    Ok(Json(CounterResponse { counter }))
+}
+
+async fn reset_counter_handler(
+    State(app_state): State<AppState>,
+) -> AppResult<Json<CounterResponse>> {
+    let counter = reset_counter(&app_state).await?;
 
     Ok(Json(CounterResponse { counter }))
 }
