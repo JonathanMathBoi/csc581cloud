@@ -39,6 +39,10 @@ async fn main() {
     });
 
     let app_state = AppState { redis_client };
+    initialize_counter(&app_state)
+        .await
+        .unwrap_or_else(|error| panic!("failed to initialize counter: {error:?}"));
+
     let app = Router::new()
         .nest("/api", api_router())
         .with_state(app_state);
@@ -72,6 +76,24 @@ fn api_router() -> Router<AppState> {
         .route("/health", get(health))
         .route("/counter", get(get_counter))
         .route("/counter/increment", post(increment_counter))
+}
+
+async fn initialize_counter(app_state: &AppState) -> AppResult<()> {
+    let mut conn = app_state
+        .redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .map_err(internal_error)?;
+
+    let initialized: bool = conn
+        .set_nx("counter", 0_i64)
+        .await
+        .map_err(internal_error)?;
+    if initialized {
+        info!("initialized counter to 0");
+    }
+
+    Ok(())
 }
 
 async fn health() -> Json<HealthResponse> {
