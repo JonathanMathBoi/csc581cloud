@@ -101,6 +101,12 @@ async fn health() -> Json<HealthResponse> {
 }
 
 async fn get_counter(State(app_state): State<AppState>) -> AppResult<Json<CounterResponse>> {
+    let counter = read_counter(&app_state).await?;
+
+    Ok(Json(CounterResponse { counter }))
+}
+
+async fn read_counter(app_state: &AppState) -> AppResult<i64> {
     let mut conn = app_state
         .redis_client
         .get_multiplexed_async_connection()
@@ -108,24 +114,23 @@ async fn get_counter(State(app_state): State<AppState>) -> AppResult<Json<Counte
         .map_err(internal_error)?;
 
     let counter: Option<i64> = conn.get("counter").await.map_err(internal_error)?;
-
-    Ok(Json(CounterResponse {
-        counter: counter.unwrap_or(0),
-    }))
+    Ok(counter.unwrap_or(0))
 }
 
 async fn increment_counter(State(app_state): State<AppState>) -> AppResult<Json<CounterResponse>> {
+    let counter = increment_counter_value(&app_state).await?;
+
+    Ok(Json(CounterResponse { counter }))
+}
+
+async fn increment_counter_value(app_state: &AppState) -> AppResult<i64> {
     let mut conn = app_state
         .redis_client
         .get_multiplexed_async_connection()
         .await
         .map_err(internal_error)?;
 
-    let new_counter: i64 = conn.incr("counter", 1).await.map_err(internal_error)?;
-
-    Ok(Json(CounterResponse {
-        counter: new_counter,
-    }))
+    conn.incr("counter", 1).await.map_err(internal_error)
 }
 
 fn internal_error(error: impl std::fmt::Display) -> (StatusCode, String) {
