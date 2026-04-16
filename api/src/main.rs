@@ -1,6 +1,7 @@
 mod api;
 mod core;
 mod counter;
+mod ui;
 
 use std::{env, net::SocketAddr};
 
@@ -27,6 +28,7 @@ async fn main() {
 
     let app = Router::new()
         .nest("/api", api::router())
+        .merge(ui::router())
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&bind_addr)
