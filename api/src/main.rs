@@ -15,6 +15,8 @@ struct AppState {
     redis_client: redis::Client,
 }
 
+type AppResult<T> = Result<T, (StatusCode, String)>;
+
 #[derive(Serialize)]
 struct HealthResponse {
     status: &'static str,
@@ -37,11 +39,8 @@ async fn main() {
     });
 
     let app_state = AppState { redis_client };
-
     let app = Router::new()
-        .route("/health", get(health))
-        .route("/counter", get(get_counter))
-        .route("/counter/increment", post(increment_counter))
+        .nest("/api", api_router())
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&bind_addr)
@@ -68,13 +67,18 @@ fn init_tracing() {
         .init();
 }
 
+fn api_router() -> Router<AppState> {
+    Router::new()
+        .route("/health", get(health))
+        .route("/counter", get(get_counter))
+        .route("/counter/increment", post(increment_counter))
+}
+
 async fn health() -> Json<HealthResponse> {
     Json(HealthResponse { status: "ok" })
 }
 
-async fn get_counter(
-    State(app_state): State<AppState>,
-) -> Result<Json<CounterResponse>, (StatusCode, String)> {
+async fn get_counter(State(app_state): State<AppState>) -> AppResult<Json<CounterResponse>> {
     let mut conn = app_state
         .redis_client
         .get_multiplexed_async_connection()
@@ -88,9 +92,7 @@ async fn get_counter(
     }))
 }
 
-async fn increment_counter(
-    State(app_state): State<AppState>,
-) -> Result<Json<CounterResponse>, (StatusCode, String)> {
+async fn increment_counter(State(app_state): State<AppState>) -> AppResult<Json<CounterResponse>> {
     let mut conn = app_state
         .redis_client
         .get_multiplexed_async_connection()

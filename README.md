@@ -76,8 +76,8 @@ docker compose up --build
 
 ## API Service (Axum)
 
-The API lives in `api/` and exposes three endpoints:
+The API lives in `api/` and exposes three endpoints under the `/api` prefix:
 
-- `GET /health` returns service health.
-- `GET /counter` returns the current counter value.
-- `POST /counter/increment` increments the counter and returns the new value.
+- `GET /api/health` returns service health.
+- `GET /api/counter` returns the current counter value.
+- `POST /api/counter/increment` increments the counter and returns the new value.
