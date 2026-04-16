@@ -1,11 +1,13 @@
 mod api;
+mod core;
+mod counter;
 
 use std::{env, net::SocketAddr};
 
 use axum::Router;
 use tracing::info;
 
-use crate::api::AppState;
+use crate::core::AppState;
 
 #[tokio::main]
 async fn main() {
@@ -19,7 +21,7 @@ async fn main() {
     });
 
     let app_state = AppState { redis_client };
-    api::initialize_counter(&app_state)
+    counter::initialize_counter(&app_state)
         .await
         .unwrap_or_else(|error| panic!("failed to initialize counter: {error:?}"));
 
