@@ -76,8 +76,18 @@ docker compose up --build
 
 ## API Service (Axum)
 
-The API lives in `api/` and exposes three endpoints under the `/api` prefix:
+The API lives in `api/` and exposes four endpoints under the `/api` prefix:
 
 - `GET /api/health` returns service health.
 - `GET /api/counter` returns the current counter value.
 - `POST /api/counter/increment` increments the counter and returns the new value.
+- `POST /api/counter/reset` resets the counter to `0` and returns the updated value.
+
+## HTMX UI
+
+The same Axum service also provides a small HTMX UI at the root route. Its interactions mirror the API's counter operations (read, increment, and reset), but return HTML fragments instead of JSON so the page can update in place.
+
+- `GET /` serves the counter page.
+- `GET /counter` returns the current counter fragment.
+- `POST /counter/increment` increments the counter and returns the updated fragment.
+- `POST /counter/reset` resets the counter to `0` and returns the updated fragment.
