@@ -86,9 +86,13 @@ async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
         line-height: 1;
       }}
 
-      button {{
+      .controls {{
         margin-top: 1.4rem;
-        width: 100%;
+        display: flex;
+        gap: 0.75rem;
+      }}
+
+      button {{
         border: 0;
         border-radius: 10px;
         padding: 0.85rem 1rem;
@@ -97,6 +101,22 @@ async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
         color: #1e2030;
         background: var(--green);
         cursor: pointer;
+      }}
+
+      .increment-button {{
+        flex: 1;
+      }}
+
+      .refresh-button {{
+        width: 3rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }}
+
+      .refresh-button svg {{
+        width: 100%;
+        height: 1.05rem;
       }}
 
       button:hover {{
@@ -112,7 +132,15 @@ async fn index(State(app_state): State<AppState>) -> AppResult<Html<String>> {
     <main>
       <h1>Service Status Counter</h1>
       <div id="counter">{}</div>
-      <button hx-post="/counter/increment" hx-target="#counter" hx-swap="innerHTML">Increment</button>
+      <div class="controls">
+        <button class="increment-button" hx-post="/counter/increment" hx-target="#counter" hx-swap="innerHTML">Increment</button>
+        <button class="refresh-button" hx-get="/counter" hx-target="#counter" hx-swap="innerHTML" aria-label="Refresh counter" title="Refresh counter">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+            <polyline points="21 3 21 9 15 9"></polyline>
+          </svg>
+        </button>
+      </div>
     </main>
   </body>
 </html>"##,
